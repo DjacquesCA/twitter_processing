@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 
-import json, yaml
+import json, yaml, time
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -13,7 +13,7 @@ from cassandra.cluster import Cluster
 with open('twitter_keys.yaml','r') as f:
     twitter_keys = yaml.load(f)
 
-node_ip = '52.8.70.34'
+node_ip = '52.11.49.19'
 cluster = Cluster([node_ip])
 session = cluster.connect('twitter')
 
@@ -33,32 +33,36 @@ class StdOutListener(StreamListener):
     def __init__(self):
         self.insert_statement = session.prepare(
             """
-            INSERT INTO tweets (id, screen_name, text, timestamp, url)
+            INSERT INTO tweets (id, screenname, userurl, created_at, text, timestamp, curr_timems)
             VALUES (?, ?, ?, ?, ?)
             """
         )
         self.counter = 0
 
     def on_data(self, data):
-        decoded = json.loads(data)
+		decoded = json.loads(data)
 
-        id          = int(decoded['id'])
-        time_stamp  = int(decoded['timestamp_ms'])
-        screen_name = str(decoded['user']['screen_name'])
-        url         = str(decoded['user']['url'])
-        text        = str(decoded['text'].encode('ascii', 'ignore'))
-        #geo        = decoded['geo']
+		id          = int(decoded['id'])
+		screen_name = str(decoded['user']['screen_name'])
+		url         = str(decoded['user']['url'])
+		created_at 	= str(deconded['created_at'])
+		text        = str(decoded['text'].encode('ascii', 'ignore'))
+		time_stampms= int(decoded['timestamp_ms'])
+		curr_timems	= int(round(time.time() * 1000)) 
+		
+		
+		
+		#geo        = decoded['geo']
 
-        parameters = [ id , screen_name, text, time_stamp, url ]
-        session.execute(self.insert_statement, parameters)
+		parameters = [ id , screen_name, url, created_at, text, time_stamp, curr_timems ]
+		session.execute(self.insert_statement, parameters)
 
-        self.counter += 1
-        print(self.counter)
-
-        return True
+		self.counter += 1
+		self.timediff = time_stampms - curr_timems
+		return True
 
 def on_error(self, status):
-    print(status)
+    print status 
 
 if __name__ == '__main__':
     l = StdOutListener()

@@ -54,7 +54,7 @@ class StdOutListener(StreamListener):
                 print ("Percent_full %s" % (decoded['warning']['percent_full']))
         #geo        = decoded['geo']
 
-        parameters = [id, text, user_screen_name, user_id, user_url, tweet_timestamp_ms, curr_time_ms]
+        parameters = [id, text, user_screen_name, user_id, user_url, tweet_timestamp_ms]
 
         session.execute(self.insert_statement, parameters)
 

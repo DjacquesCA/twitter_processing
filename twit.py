@@ -59,6 +59,7 @@ class StdOutListener(StreamListener):
 
 		self.counter += 1
 		self.timediff = time_stampms - curr_timems
+		print 'Count: %s, Timediff: %s' % (self.counter,self.timediff)
 		return True
 
 def on_error(self, status):

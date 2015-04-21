@@ -16,15 +16,16 @@ class StdOutListener(StreamListener):
     """ A listener handles tweets that are the received from the stream.
     This listener inserts tweet data into a given Cassandra cluster.
     """
-    def __init__(self, cas_session):
-        self.insert_statement = cas_session.prepare(
+    def __init__(self, session):
+        self.counter = 0
+        self.session = session
+        self.insert_statement = self.session.prepare(
 
             """
             INSERT INTO d_tweets (id, text, user_screen_name, user_id, user_url, tweet_timestamp_ms)
             VALUES (?, ?, ?, ?, ?, ?)
             """
         )
-        self.counter = 0
 
     def on_data(self, data):
         try:
@@ -46,12 +47,11 @@ class StdOutListener(StreamListener):
 
                 parameters = [id, text, user_screen_name, user_id, user_url, tweet_timestamp_ms]
 
-                session.execute(self.insert_statement, parameters)
+                self.session.execute(self.insert_statement, parameters)
 
                 self.counter += 1
 
                 print('Count: %s' % (self.counter))
-                # print('Count: %s' % (self.counter))
                 return True
 
         except:

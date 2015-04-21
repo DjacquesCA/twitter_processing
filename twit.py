@@ -73,5 +73,5 @@ if __name__ == '__main__':
 
     try:
         stream.filter(track=['basketball'], stall_warnings=True)
-        except:
-            traceback.print_exc()
+    except:
+        traceback.print_exc()

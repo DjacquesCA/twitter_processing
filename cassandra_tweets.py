@@ -72,7 +72,7 @@ if __name__ == '__main__':
     cluster = Cluster([node_ip])
     session = cluster.connect('twitter')
 
-    logging.basicConfig(filename='twitter_capture.log',level=logging.INFO,
+    logging.basicConfig(filename='cassandra_tweets.log',level=logging.INFO,
         format='%(asctime)s: %(levelname)s %(name)s: %(message)s')
 
     listener = StdOutListener(session)

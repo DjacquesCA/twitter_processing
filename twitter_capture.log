@@ -1,2 +1,0 @@
-2015-04-27 09:22:52,593: INFO requests.packages.urllib3.connectionpool: Starting new HTTPS connection (1): stream.twitter.com
-2015-04-27 09:22:53,566: INFO root: Tweet count: 1

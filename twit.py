@@ -64,14 +64,15 @@ class StdOutListener(StreamListener):
 
 if __name__ == '__main__':
 
-    node_ip = '54.186.215.175'
+    with open('keys.yaml','r') as f:
+        config = yaml.load(f)
+        twitter_keys = config['twitter_keys']
+        node_ip      = config['cassandra_ips'][0]
+
     cluster = Cluster([node_ip])
     session = cluster.connect('twitter')
 
-    with open('twitter_keys.yaml','r') as f:
-        twitter_keys = yaml.load(f)
-
-    logging.basicConfig(filename='example.log',level=logging.INFO,
+    logging.basicConfig(filename='twitter_capture.log',level=logging.INFO,
         format='%(asctime)s: %(levelname)s %(name)s: %(message)s')
 
     listener = StdOutListener(session)
@@ -87,6 +88,7 @@ if __name__ == '__main__':
             'rails',
             'javascript',
             'java',
+            'Objective C',
             'C',
             'C++',
             'iOS',
@@ -96,5 +98,3 @@ if __name__ == '__main__':
         stream.filter(track=track, stall_warnings=True)
     except Exception as err:
         logging.critical(err)
-
-    print('test')

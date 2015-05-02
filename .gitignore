@@ -1,2 +1,4 @@
 # Ignore twitter keys file
 keys.yaml
+examples/*
+cassandra_tweets.log

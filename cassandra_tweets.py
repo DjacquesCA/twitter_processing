@@ -1,6 +1,8 @@
+#!/usr/bin/python3
+
 from __future__ import absolute_import, print_function
 
-import json, yaml, traceback, logging
+import json, yaml, traceback, logging, os
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -60,20 +62,25 @@ class StdOutListener(StreamListener):
             logging.error(err)
 
     def on_error(self, status):
-        print(status)
+        logging.error(status)
 
 if __name__ == '__main__':
 
-    with open('keys.yaml','r') as f:
-        config = yaml.load(f)
+    if 'TWITTER_LOG_PATH' in os.environ:
+        file_path = os.environ['TWITTER_LOG_PATH']
+    else:
+        file_path = './'
+
+    logging.basicConfig(filename=file_path + 'cassandra_tweets.log',level=logging.INFO,
+        format='%(asctime)s: %(levelname)s %(name)s: %(message)s')
+
+    with open(file_path + 'keys.yaml','r') as f:
+        config       = yaml.load(f)
         twitter_keys = config['twitter_keys']
         node_ip      = config['cassandra_ips'][0]
 
     cluster = Cluster([node_ip])
     session = cluster.connect('twitter')
-
-    logging.basicConfig(filename='cassandra_tweets.log',level=logging.INFO,
-        format='%(asctime)s: %(levelname)s %(name)s: %(message)s')
 
     listener = StdOutListener(session)
     auth     = OAuthHandler(twitter_keys['consumer_key'], twitter_keys['consumer_secret'])

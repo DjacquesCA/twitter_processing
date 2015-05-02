@@ -14,7 +14,10 @@ class StdOutListener(StreamListener):
     """ A listener handles tweets that are the received from the stream.
     This listener inserts tweet data into a given Cassandra cluster.
     """
+
     def __init__(self, session):
+        """Setup countr, cassandra session, and prepar insert statement"""
+
         self.counter = 0
         self.session = session
         self.insert_statement = self.session.prepare(
@@ -66,21 +69,44 @@ class StdOutListener(StreamListener):
 
 if __name__ == '__main__':
 
+    #
+    # Setup log and key files
+    #
+
     if 'TWITTER_LOG_PATH' in os.environ:
         file_path = os.environ['TWITTER_LOG_PATH']
     else:
         file_path = './'
 
-    logging.basicConfig(filename=file_path + 'cassandra_tweets.log',level=logging.INFO,
+    log_file = file_path + 'cassandra_tweets.log'
+    key_file = file_path + 'keys.yaml'
+
+    #
+    # Set logging configuration
+    #
+
+    logging.basicConfig(filename=log_file, level=logging.INFO,
         format='%(asctime)s: %(levelname)s %(name)s: %(message)s')
 
-    with open(file_path + 'keys.yaml','r') as f:
+    #
+    # Setup configuration keys
+    #
+
+    with open(key_file,'r') as f:
         config       = yaml.load(f)
         twitter_keys = config['twitter_keys']
         node_ip      = config['cassandra_ips'][0]
 
+    #
+    # Initialize Cassandra Cluster
+    #
+
     cluster = Cluster([node_ip])
     session = cluster.connect('twitter')
+
+    #
+    # Setup and execute listener
+    #
 
     listener = StdOutListener(session)
     auth     = OAuthHandler(twitter_keys['consumer_key'], twitter_keys['consumer_secret'])
